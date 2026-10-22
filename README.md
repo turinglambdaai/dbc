@@ -1,5 +1,7 @@
 # dbc — Vector DBC (CAN database) in pure Racket
 
+**English** · [中文](README.zh-CN.md)
+
 [![CI](https://github.com/turinglambdaai/dbc/actions/workflows/ci.yml/badge.svg)](https://github.com/turinglambdaai/dbc/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 `dbc` reads and writes **DBC files** — the de-facto-standard CAN database
