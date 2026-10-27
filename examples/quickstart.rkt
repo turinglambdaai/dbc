@@ -9,8 +9,9 @@ VERSION "1.0"
 BO_ 37 ExampleMessage: 8 Vector__XXX
  SG_ VehicleSpeed : 39|16@1+ (0.01,0) [-100|100] "kph" Vector__XXX
  SG_ Temperature : 0|12@0- (0.01,250) [-40|215] "degC" Vector__XXX
+ SG_ DriveMode : 56|8@1+ (1,0) [0|1] "" Vector__XXX
 
-VAL_ 37 VehicleSpeed 0 "standstill" 1 "moving" ;
+VAL_ 37 DriveMode 0 "parked" 1 "active" ;
 DBC
 ))
 
@@ -30,8 +31,8 @@ DBC
   (error 'dbc-quickstart "signals missing after CAN frame round-trip"))
 
 (define choices (message-decode msg (make-bytes 8 0) #:decode-choices? #t))
-(unless (equal? (hash-ref choices 'VehicleSpeed) "standstill")
-  (error 'dbc-quickstart "VAL_ choice lookup failed"))
+(unless (equal? (hash-ref choices 'DriveMode) "parked")
+  (error 'dbc-quickstart "unscaled DriveMode VAL_ choice lookup failed"))
 (unless (equal? (parse-dbc (serialize-dbc db)) db)
   (error 'dbc-quickstart "DBC grammar serialization lost information"))
 (displayln "DBC quickstart OK")
