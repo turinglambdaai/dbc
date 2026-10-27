@@ -32,8 +32,9 @@ VERSION "1.0"
 BO_ 37 ExampleMessage: 8 Vector__XXX
  SG_ VehicleSpeed : 39|16@1+ (0.01,0) [-100|100] "kph" Vector__XXX
  SG_ Temperature : 0|12@0- (0.01,250) [-40|215] "degC" Vector__XXX
+ SG_ DriveMode : 56|8@1+ (1,0) [0|1] "" Vector__XXX
 
-VAL_ 37 VehicleSpeed 0 "standstill" 1 "moving" ;
+VAL_ 37 DriveMode 0 "parked" 1 "active" ;
 DBC
 ))
 (define msg
@@ -42,7 +43,7 @@ DBC
 
 (message-name msg) ; => 'ExampleMessage
 (message-decode msg (make-bytes 8 0) #:decode-choices? #t)
-;; VehicleSpeed is "standstill" according to VAL_.
+;; DriveMode is "parked" according to VAL_; scaled VehicleSpeed stays numeric.
 (define payload
   (message-encode msg (hash 'Temperature 250.47 'VehicleSpeed 0.5)))
 (message-decode msg payload)
@@ -66,7 +67,7 @@ DBC
 无损序列化、Intel/Motorola 位布局、信号缩放和枚举表；
 手册中的合成 CAN DBC 示例会在文档构建时执行。
 [独立 quickstart](examples/quickstart.rkt)检查消息查找、
-CAN 帧编解码、VAL_ 选项值与 DBC 序列化，不依赖 CAN 硬件、
+CAN 帧编解码、未缩放 DriveMode 的 VAL_ 选项值与 DBC 序列化，不依赖 CAN 硬件、
 外部文件或专有数据。
 
 安装 Racket 后，在仓库根目录执行：
