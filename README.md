@@ -45,8 +45,9 @@ VERSION "1.0"
 BO_ 37 ExampleMessage: 8 Vector__XXX
  SG_ VehicleSpeed : 39|16@1+ (0.01,0) [-100|100] "kph" Vector__XXX
  SG_ Temperature : 0|12@0- (0.01,250) [-40|215] "degC" Vector__XXX
+ SG_ DriveMode : 56|8@1+ (1,0) [0|1] "" Vector__XXX
 
-VAL_ 37 VehicleSpeed 0 "standstill" 1 "moving" ;
+VAL_ 37 DriveMode 0 "parked" 1 "active" ;
 DBC
 ))
 (define msg
@@ -55,7 +56,7 @@ DBC
 
 (message-name msg) ; => 'ExampleMessage
 (message-decode msg (make-bytes 8 0) #:decode-choices? #t)
-;; VehicleSpeed is "standstill" according to VAL_.
+;; DriveMode is "parked" according to VAL_; scaled VehicleSpeed stays numeric.
 (define payload
   (message-encode msg (hash 'Temperature 250.47 'VehicleSpeed 0.5)))
 (message-decode msg payload)
@@ -86,7 +87,7 @@ current switch value appear in a decode result.
 
 The [Scribble API manual](dbc/scribblings/dbc.scrbl) describes the entry
 model, lossless serialization, Intel/Motorola bit layouts, scaled signal
-encoding and choice tables; its synthetic CAN DBC example is evaluated during
+encoding and choice tables (unscaled integer DriveMode); its synthetic CAN DBC example is evaluated during
 documentation generation. A separate [executable quickstart](examples/quickstart.rkt)
 checks message lookup, frame encoding/decoding, VAL_ choices and DBC
 serialization without hardware, file downloads or proprietary databases.
