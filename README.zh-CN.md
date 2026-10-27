@@ -22,20 +22,31 @@ raco pkg install dbc
 - **编解码视图** —— 每个 `entry-bo` 包装一个 `message?`，其 `signal?` 携带附加的选项值/注释/浮点类型，随时可用于 `message-decode` / `message-encode`。
 
 ```racket
+#lang racket/base
 (require dbc)
 
-(define db (parse-dbc text))
-(define msg (for/first ([e (in-list (dbc-entries db))] #:when (entry-bo? e))
-              (entry-bo-message e)))
+;; A self-contained synthetic Vector DBC; no external .dbc file needed.
+(define db (parse-dbc #<<DBC
+VERSION "1.0"
 
-(message-decode msg (bytes #x01 #xb0 0 0 0 0 0 0))
-;; '#hash((Temperature . 243.6) (AverageRadius . 0.0) (Enable . 0))
+BO_ 37 ExampleMessage: 8 Vector__XXX
+ SG_ VehicleSpeed : 39|16@1+ (0.01,0) [-100|100] "kph" Vector__XXX
+ SG_ Temperature : 0|12@0- (0.01,250) [-40|215] "degC" Vector__XXX
 
-(message-decode msg (bytes #x01 #xb0 0 0 0 0 0 0) #:decode-choices? #t)
-;; Enable becomes "Disabled" via its VAL_ value table
+VAL_ 37 VehicleSpeed 0 "standstill" 1 "moving" ;
+DBC
+))
+(define msg
+  (for/first ([e (in-list (dbc-entries db))] #:when (entry-bo? e))
+    (entry-bo-message e)))
 
-(message-encode msg (hash 'Temperature 250.47 'AverageRadius 1.5 'Enable 1))
-;; #"\236\5\340\0\0\0\0\0" — byte-identical to cantools
+(message-name msg) ; => 'ExampleMessage
+(message-decode msg (make-bytes 8 0) #:decode-choices? #t)
+;; VehicleSpeed is "standstill" according to VAL_.
+(define payload
+  (message-encode msg (hash 'Temperature 250.47 'VehicleSpeed 0.5)))
+(message-decode msg payload)
+(equal? (parse-dbc (serialize-dbc db)) db) ; => #t
 ```
 
 ### 位编号
@@ -48,6 +59,28 @@ raco pkg install dbc
 ### 多路复用
 
 普通多路复用（`M` 开关、`mN` 变体）与扩展多路复用（`SG_MUL_VAL_` 区间）均可解码和编码。同名的复用变体保留为独立信号；解码结果中只出现当前开关值下活跃的变体。
+
+## API 手册、可运行示例与测试
+
+[完整 Scribble API 文档](dbc/scribblings/dbc.scrbl)说明条目模型、
+无损序列化、Intel/Motorola 位布局、信号缩放和枚举表；
+手册中的合成 CAN DBC 示例会在文档构建时执行。
+[独立 quickstart](examples/quickstart.rkt)检查消息查找、
+CAN 帧编解码、VAL_ 选项值与 DBC 序列化，不依赖 CAN 硬件、
+外部文件或专有数据。
+
+安装 Racket 后，在仓库根目录执行：
+
+```sh
+raco pkg install --auto --link "$(pwd)"
+raco test -p dbc
+racket examples/quickstart.rkt
+raco setup --check-pkg-deps -l dbc
+```
+
+CI 在 Linux、macOS、Windows 上验证这些命令。
+`dbc` 是 multi-collection 包的公开 collection；解析 DBC 文件
+不等于已经连接或操作实时 CAN 总线。
 
 ## 局限
 
