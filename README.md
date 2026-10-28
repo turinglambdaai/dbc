@@ -35,20 +35,32 @@ A parsed file is a `dbc?` value holding two views:
   `message-decode` / `message-encode`.
 
 ```racket
+#lang racket/base
 (require dbc)
 
-(define db (parse-dbc text))
-(define msg (for/first ([e (in-list (dbc-entries db))] #:when (entry-bo? e))
-              (entry-bo-message e)))
+;; A self-contained synthetic Vector DBC; no external .dbc file needed.
+(define db (parse-dbc #<<DBC
+VERSION "1.0"
 
-(message-decode msg (bytes #x01 #xb0 0 0 0 0 0 0))
-;; '#hash((Temperature . 243.6) (AverageRadius . 0.0) (Enable . 0))
+BO_ 37 ExampleMessage: 8 Vector__XXX
+ SG_ VehicleSpeed : 39|16@1+ (0.01,0) [-100|100] "kph" Vector__XXX
+ SG_ Temperature : 0|12@0- (0.01,250) [-40|215] "degC" Vector__XXX
+ SG_ DriveMode : 56|8@1+ (1,0) [0|1] "" Vector__XXX
 
-(message-decode msg (bytes #x01 #xb0 0 0 0 0 0 0) #:decode-choices? #t)
-;; Enable becomes "Disabled" via its VAL_ value table
+VAL_ 37 DriveMode 0 "parked" 1 "active" ;
+DBC
+))
+(define msg
+  (for/first ([e (in-list (dbc-entries db))] #:when (entry-bo? e))
+    (entry-bo-message e)))
 
-(message-encode msg (hash 'Temperature 250.47 'AverageRadius 1.5 'Enable 1))
-;; #"\236\5\340\0\0\0\0\0" — byte-identical to cantools
+(message-name msg) ; => 'ExampleMessage
+(message-decode msg (make-bytes 8 0) #:decode-choices? #t)
+;; DriveMode is "parked" according to VAL_; scaled VehicleSpeed stays numeric.
+(define payload
+  (message-encode msg (hash 'Temperature 250.47 'VehicleSpeed 0.5)))
+(message-decode msg payload)
+(equal? (parse-dbc (serialize-dbc db)) db) ; => #t
 ```
 
 ### Bit numbering
@@ -70,6 +82,28 @@ Plain multiplexing (`M` switch, `mN` variants) and extended multiplexing
 (`SG_MUL_VAL_` ranges) are both decoded and encoded.  Same-name muxed
 variants are kept as separate signals; only the variants active under the
 current switch value appear in a decode result.
+
+## Reference, checked examples and tests
+
+The [Scribble API manual](dbc/scribblings/dbc.scrbl) describes the entry
+model, lossless serialization, Intel/Motorola bit layouts, scaled signal
+encoding and choice tables (unscaled integer DriveMode); its synthetic CAN DBC example is evaluated during
+documentation generation. A separate [executable quickstart](examples/quickstart.rkt)
+checks message lookup, frame encoding/decoding, VAL_ choices and DBC
+serialization without hardware, file downloads or proprietary databases.
+
+From a local checkout (Racket installed):
+
+```sh
+raco pkg install --auto --link "$(pwd)"
+raco test -p dbc
+racket examples/quickstart.rkt
+raco setup --check-pkg-deps -l dbc
+```
+
+The Linux/macOS/Windows CI matrix verifies all these checks. The pure
+Racket `dbc` collection is inside the multi-collection package; parsing a
+DBC is not itself a live CAN adapter.
 
 ## Limitations
 

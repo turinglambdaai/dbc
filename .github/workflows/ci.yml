@@ -21,3 +21,7 @@ jobs:
         run: raco pkg install --auto --link "$(pwd)"
       - name: Run tests
         run: raco test -p dbc
+      - name: Run synthetic DBC codec quickstart
+        run: racket examples/quickstart.rkt
+      - name: Build Scribble reference and check package dependencies
+        run: raco setup --check-pkg-deps -l dbc
