@@ -2,7 +2,7 @@
 
 **English** · [中文](README.zh-CN.md)
 
-[![CI](https://github.com/turinglambdaai/dbc/actions/workflows/ci.yml/badge.svg)](https://github.com/turinglambdaai/dbc/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/turlamai/dbc/actions/workflows/ci.yml/badge.svg)](https://github.com/turlamai/dbc/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 `dbc` reads and writes **DBC files** — the de-facto-standard CAN database
 format invented by Vector Informatik and consumed by virtually every CAN tool

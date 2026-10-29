@@ -10,7 +10,7 @@
 (define deps '("base" "rackunit-lib"))
 (define build-deps '("base" "scribble-lib" "racket-doc" "rackunit-lib"))
 (define pkg-desc "Pure-Racket Vector DBC (CAN database) reader/writer: full grammar, signal codec for Intel and Motorola byte order, multiplexing, round-trip serialization")
-(define pkg-authors '("turinglambdaai"))
+(define pkg-authors '("turlamai"))
 (define license 'MIT)
 ;; Documentation is declared in dbc/info.rkt (collection level) — `raco
 ;; setup` only discovers scribblings from a collection's own info.rkt for

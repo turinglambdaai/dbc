@@ -2,7 +2,7 @@
 
 [English](README.md) · **中文**
 
-[![CI](https://github.com/turinglambdaai/dbc/actions/workflows/ci.yml/badge.svg)](https://github.com/turinglambdaai/dbc/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/turlamai/dbc/actions/workflows/ci.yml/badge.svg)](https://github.com/turlamai/dbc/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 `dbc` 读取和写入 **DBC 文件**——由 Vector Informatik 发明、汽车行业几乎所有 CAN 工具都在使用的事实标准 CAN 数据库格式。DBC 文件描述 CAN 总线的符号层：报文与信号名称、位布局、缩放、值表、注释与属性。
 
