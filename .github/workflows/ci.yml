@@ -2,7 +2,17 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
+
+permissions:
+  contents: read
+
+# Do not duplicate branch-push and PR builds. Cancel only superseded
+# runs for the same event and PR (or branch), never unrelated work.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
